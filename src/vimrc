@@ -1,1 +1,89 @@
-/Users/gabriel/.vimrc
+set nocompatible
+set bs=2
+set autoindent
+set ruler
+set wildmenu
+set relativenumber
+colorscheme slate
+
+set textwidth=150
+set ruler "show cursor position
+
+syntax on
+
+"source vimrc after saving:
+if has("autocmd")
+    autocmd bufwritepost .vimrc source %
+endif
+
+"use spaces instead of tabs
+set shiftwidth=4
+set expandtab
+set softtabstop=4
+set display+=lastline
+
+"status line: we want it at all times -- yellow on black with ASCII code of current letter
+set statusline=%<%f%h%m%r%=char=%b=0x%B\ \ %l,%c%V\ %P
+set laststatus=2
+set highlight+=s:MyStatusLineHighlight
+highlight MyStatusLineHighLight ctermbg=black ctermfg=yellow
+" tab line: yellow on black
+" tab line is shown when you press Tab in command mode
+highlight TabLine     ctermbg=black ctermfg=yellow
+highlight TabLineSel  ctermbg=black ctermfg=yellow
+highlight TabLineFill ctermbg=black ctermfg=yellow
+
+" <Tab> at the end of work should attempt to complete it using tokens
+" from the current file {{{
+function! My_Tab_Completion()
+    if col('.')>1 && strpart( getline('.'), col('.')-2, 3) =~ '^\w'
+        return "\<C-P>"
+    else
+        return "\<Tab>"
+endfunction
+inoremap <Tab> <C-R>=My_Tab_Completion()<CR>
+" }}}
+
+" Makefile set
+function! MAKEFILESET()
+    set tw=0
+    set nowrap
+    " in a Makefile need to preserve tabs instead of spaces
+    set noet
+    set sts=8
+    iunmap <Tab>
+endfunction
+
+" Python set
+function! PYSET()
+    map <F4> :!python %
+    set tw=4
+    set nowrap
+endfunction
+
+" vim scripts
+function! VIMSET()
+    set tw=0
+    set nowrap
+    set comments+=b:\"
+endfunction
+
+" C set
+function! CSET()
+    map <F4> :!make
+    set makeprg=make
+    set errorformat=%f:%1:\ %m
+    set cindent
+    set tw=0
+    set nowrap
+endfunction
+
+" Autocommands for languages:
+autocmd FileType vim    call VIMSET()
+autocmd FileType c      call CSET()
+autocmd FileType make   call MAKEFILESET()
+autocmd FileType python call PYSET()
+
+set fdm=marker
+
+set commentstring=\ \"\ %s
